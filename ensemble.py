@@ -15,18 +15,39 @@ def train_models():
     trainerC = Trainer(Conv_Net, X_train, y_train, X_test, y_test)
 
     ## Train models and get training loss
-    trainerC.train(epochs=1)
-    trainerL.train(epochs=1)
+    trainerC.train(epochs=8)
+    trainerL.train(epochs=3)
     return trainerL, trainerC, X_test, y_test
 
 
-def ensemble(X,y):
+def ensemble(Lin=None, Conv=None, X_test=None,y_test=None):
     TL, TC, X_test, y_test = train_models()
+    LinACC = TL.test(X=X_test, Y=y_test, show_load=False)
+    ConACC = TC.test(X=X_test, Y=y_test, show_load=False)
 
+    preds = []
+    score = np.zeros(len(X_test))
     for i, xy in enumerate(zip(X_test,y_test)):
         x, y = xy
-        print(TL.test(X=x), y)
-        print(TC.test(X=x), y)
+        predL, confL = TL.test(X=x, show_load=False)
+        predC, confC = TC.test(X=x, show_load=False)
+
+        predL, predC = predL[0], predC[0]
+        
+        if confL < confC:
+            curr_pred = predC
+            preds.append(predC)
+        else:
+            curr_pred = predL
+            preds.append(predL)
+        
+        if curr_pred == y:
+            score[i] = 1
+    print('LINEAR ACCURACY:', LinACC)
+    print('CONV ACCURACY:', ConACC)
+    print('ENSEMBLE ACCURACY:', np.mean(score))
+    print('Ensemble improved accuracy by:', (np.mean(score) - max(LinACC, ConACC))*100, '%')
+        
 
 
 if __name__ == '__main__':

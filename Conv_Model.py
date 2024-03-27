@@ -117,7 +117,7 @@ class Trainer:
         
         if plot_loss: return loss_list
 
-    def test(self, X = None, Y = None):
+    def test(self, X = None, Y = None, show_load=False):
         '''Test the model on the test data and return the accuracy.\n
         If X and Y are None, test the model on all provided data.
         If X and Y are not None, test the model on the provided data.
@@ -153,7 +153,11 @@ class Trainer:
                 X = np.expand_dims(X, axis=1)
             
         score = np.zeros(len(X))
-        for i, xy in tqdm(enumerate(zip(X, Y)), ascii=True, total=len(X)):
+        if show_load:
+            iterator = tqdm(enumerate(zip(X, Y)), ascii=True, total=len(X))
+        else:
+            iterator = enumerate(zip(X, Y))
+        for i, xy in iterator:
             x, y = xy
             if self.net.ID == "Conv_Net":
                 x = torch.tensor(x[0], dtype=torch.float).unsqueeze(0)

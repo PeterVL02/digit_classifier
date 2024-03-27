@@ -20,7 +20,8 @@ def train_models():
     return trainerL, trainerC, X_test, y_test
 
 
-def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False):
+def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False, 
+             weighted = False):
     if Lin is None or Conv is None:
         TL, TC, X_test, y_test = train_models()
     
@@ -38,8 +39,10 @@ def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False):
         predC, confC = TC.test(X=x, show_load=False)
 
         predL, predC = predL[0], predC[0]
-        
-        if confL < confC:
+
+        ## TODO Perhaps look at **TRAINING** accuracy to determine if one model should weigh more
+        ## Important that we do not use test accuracy (LinACC and ConAcc), since we do not know that yet
+        if confL < confC: 
             curr_pred = predC
             preds.append(predC)
         else:
@@ -48,10 +51,11 @@ def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False):
         
         if curr_pred == y:
             score[i] = 1
-    print('LINEAR ACCURACY:', LinACC)
-    print('CONV ACCURACY:', ConACC)
-    print('ENSEMBLE ACCURACY:', np.mean(score))
-    print('Ensemble improved accuracy by:', (np.mean(score) - max(LinACC, ConACC))*100, '%')
+    if show_stats:
+        print('LINEAR ACCURACY:', LinACC)
+        print('CONV ACCURACY:', ConACC)
+        print('ENSEMBLE ACCURACY:', np.mean(score))
+        print('Ensemble improved accuracy by:', (np.mean(score) - max(LinACC, ConACC))*100, '%')
     return np.mean(score)
         
 

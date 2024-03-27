@@ -12,7 +12,8 @@ from Flat_Model import Linear_Net
 from ensemble import *
 
 
-def k_fold_cross_validation(X, y, k):
+def k_fold_cross_validation(X, y, k:int):
+    'Yield k (training, testing) folds from the input dataset X, y. Iterator'
     X, y = shuffle(X, y, random_state=42)
     fold_size = len(X) // k
 
@@ -55,7 +56,10 @@ if __name__ == '__main__':
     svm_rolling_acc = []
     gnb_rolling_acc = []
 
+    fold = 0
     for X_train, X_test, y_train, y_test in k_fold_cross_validation(ims, labs, k=5):
+        fold += 1
+        print(f'Commencing fold {fold}:\n')
 
         ## Reshape data for SciKit models
         n_samples, width, height = X_train.shape

@@ -36,7 +36,6 @@ class Conv_Net(nn.Module):
         x = F.relu(self.fc2(x))
 
         x = self.fc3(x)
-        # x = F.softmax(self.fc3(x), dim=1)
         return x
 
     def num_flat_features(self, x):
@@ -82,9 +81,9 @@ class Trainer:
         if lr is not None: self.net.lr = lr
         self.net.device = self.device
 
-        # if self.net.ID == "Conv_Net":
-        #     X_train = np.expand_dims(X_train, axis=1)
-        #     X_test = np.expand_dims(X_test, axis=1)
+        if self.net.ID == "Conv_Net":
+            X_train = np.expand_dims(X_train, axis=1)
+            X_test = np.expand_dims(X_test, axis=1)
 
         self.X_train = X_train
         self.y_train = y_train
@@ -123,6 +122,19 @@ class Trainer:
         If X and Y are None, test the model on all provided data.
         If X and Y are not None, test the model on the provided data.
         If only X is provided, function returns predictions.'''
+
+        try:
+            if len(X.shape) == 3:
+                X = X.reshape(X.shape[0], X.shape[1], X.shape[2], 1)
+        
+
+            elif len(X.shape) == 2:
+                X = np.array([X])
+        except AttributeError:
+            pass
+
+        if isinstance(Y, np.int32):
+            Y = np.array([Y])
 
         give_preds = False
         if X is None:
@@ -177,9 +189,6 @@ def dataprep(network, data=None):
         X_train, X_test, y_train, y_test = train_test_split(ims, labs, test_size=0.2, random_state=42)
     else:
         X_train, X_test, y_train, y_test = data
-    if isinstance(network, Conv_Net):
-        X_train = np.expand_dims(X_train, axis=1)
-        X_test = np.expand_dims(X_test, axis=1)
     return X_train, X_test, y_train, y_test
 
 

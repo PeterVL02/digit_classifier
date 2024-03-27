@@ -20,8 +20,13 @@ def train_models():
     return trainerL, trainerC, X_test, y_test
 
 
-def ensemble(Lin=None, Conv=None, X_test=None,y_test=None):
-    TL, TC, X_test, y_test = train_models()
+def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False):
+    if Lin is None or Conv is None:
+        TL, TC, X_test, y_test = train_models()
+    
+    else:
+        TL, TC = Lin, Conv
+
     LinACC = TL.test(X=X_test, Y=y_test, show_load=False)
     ConACC = TC.test(X=X_test, Y=y_test, show_load=False)
 
@@ -47,9 +52,9 @@ def ensemble(Lin=None, Conv=None, X_test=None,y_test=None):
     print('CONV ACCURACY:', ConACC)
     print('ENSEMBLE ACCURACY:', np.mean(score))
     print('Ensemble improved accuracy by:', (np.mean(score) - max(LinACC, ConACC))*100, '%')
+    return np.mean(score)
         
 
 
 if __name__ == '__main__':
-    ensemble(None, None)
-    ## TODO DATA FUNGERER SLET IKKE. FIX DET. HVAD MED CONF??
+    ensemble(show_stats=True)

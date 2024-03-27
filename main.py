@@ -8,6 +8,7 @@ import numpy as np
 ## Import models and functions from other files
 from Conv_Model import Conv_Net, Trainer, dataprep
 from Flat_Model import Linear_Net
+from ensemble import *
 
 def plot_loss(loss:list, network:str) -> None:
     plotloss = []
@@ -71,16 +72,21 @@ if __name__ == '__main__':
     accL = trainerL.test()
     accC = trainerC.test()
 
+    accENS = ensemble(Lin=trainerL, Conv=trainerC, X_test=X_testL, y_test=y_testL)
+
+
     ## Print results
     print('Linear Net accuracy:',accL)
     print('Conv Net accuracy:',accC)
+    print('Ensemble Net accuracy:',accENS)
     print('Support Vector Classifier accuracy:',SVMacc)
     print('Naïve Bayes accuracy:',GNBacc)
     print('-------------------------------------------------------------')
     print('Conv Net improvement:',f'{(accC-SVMacc)*100:.2f}%')
     print('Linear Net improvement:',f'{(accL-SVMacc)*100:.2f}%')
+    print('Ensemble Net improvement:',f'{(accENS-SVMacc)*100:.2f}%')
 
-    if accC > max(SVMacc, GNBacc) or accL > max(SVMacc, GNBacc):
+    if accC > max(SVMacc, GNBacc) or accL > max(SVMacc, GNBacc) or accENS > max(SVMacc, GNBacc):
         print('We beat the SciKit models! At least those I have created...')
         
 

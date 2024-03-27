@@ -4,11 +4,26 @@ from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.utils import shuffle
 
 ## Import models and functions from other files
 from Conv_Model import Conv_Net, Trainer, dataprep
 from Flat_Model import Linear_Net
 from ensemble import *
+
+
+def k_fold_cross_validation(X, y, k):
+    X, y = shuffle(X, y, random_state=42)
+    fold_size = len(X) // k
+
+    for i in range(k):
+        start = i * fold_size
+        end = (i + 1) * fold_size if i + 1 != k else len(X)
+        X_test = X[start:end]
+        y_test = y[start:end]
+        X_train = np.concatenate((X[:start], X[end:]))
+        y_train = np.concatenate((y[:start], y[end:]))
+        yield X_train, X_test, y_train, y_test
 
 def plot_loss(loss:list, network:str) -> None:
     plotloss = []
@@ -34,35 +49,35 @@ if __name__ == '__main__':
     digits = datasets.load_digits()
     ims, labs = digits.images, digits.target
 
-    data = train_test_split(ims, labs, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(ims, labs, test_size=0.2, random_state=42)
+
+    ## Reshape data for SciKit models
+    n_samples, width, height = X_train.shape
+    X_train_reshaped = X_train.reshape((n_samples, width * height))
+
+    n_samples = X_test.shape[0]
+    X_test_reshaped = X_test.reshape((n_samples, width * height))
 
     ## Boring stuff some dude from YouTube did;
-
-    bx, by = digits.data[:-10], digits.target[:-10]
-    bx_train, bx_test, by_train, by_test = train_test_split(bx, by, test_size=0.2, random_state=42)
     svmmodel = SVC(kernel='linear')
-    svmmodel.fit(bx_train, by_train)
-    print('Support Vector Classifier model accuracy:',SVMacc:=svmmodel.score(bx_test, by_test))
+    svmmodel.fit(X_train_reshaped, y_train)
+    print('Support Vector Classifier model accuracy:',SVMacc:=svmmodel.score(X_test_reshaped, y_test))
 
     ## Boring stuff that i'll do:
 
     gnb = GaussianNB()
-    gnb.fit(bx_train, by_train)
-    print('Naïve Bayes model accuracy:',GNBacc:=gnb.score(bx_test, by_test))
+    gnb.fit(X_train_reshaped, y_train)
+    print('Naïve Bayes model accuracy:',GNBacc:=gnb.score(X_test_reshaped, y_test))
 
     ## Not nearly as fun as making your own model
 
-    ## Remove data=data to perform the split here. Then the top 3 lines can be removed.
-    ## I have done it this way to train on the same data for each model.
-    X_trainL, X_testL, y_trainL, y_testL = dataprep(Linear_Net(), data=data) 
-    X_trainC, X_testC, y_trainC, y_testC = dataprep(Conv_Net(), data=data)
 
     ## Define number of epochs
     rttL, rttC = 3, 8
 
     ## Instantiate trainers for each model
-    trainerL = Trainer(Linear_Net, X_trainL, y_trainL, X_testL, y_testL)
-    trainerC = Trainer(Conv_Net, X_trainC, y_trainC, X_testC, y_testC)
+    trainerL = Trainer(Linear_Net, X_train, y_train, X_test, y_test)
+    trainerC = Trainer(Conv_Net, X_train, y_train, X_test, y_test)
 
     ## Train models and get training loss
     Lloss = trainerL.train(epochs=rttL, plot_loss=True)
@@ -72,7 +87,7 @@ if __name__ == '__main__':
     accL = trainerL.test()
     accC = trainerC.test()
 
-    accENS = ensemble(Lin=trainerL, Conv=trainerC, X_test=X_testL, y_test=y_testL)
+    accENS = ensemble(Lin=trainerL, Conv=trainerC, X_test=X_test, y_test=y_test)
 
 
     ## Print results

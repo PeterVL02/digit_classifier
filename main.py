@@ -90,17 +90,19 @@ if __name__ == '__main__':
         trainerC = Trainer(Conv_Net, X_train, y_train, X_test, y_test)
 
         ## Train models and get training loss
-        Lloss = trainerL.train(epochs=rttL, plot_loss=True)
-        Closs = trainerC.train(epochs=rttC, plot_loss=True)
+        Lloss, LinTrainAcc = trainerL.train(epochs=rttL, plot_loss=True)
+        Closs, ConTrainAcc = trainerC.train(epochs=rttC, plot_loss=True)
 
         ## Test models and get accuracy
         accL = trainerL.test()
         accC = trainerC.test()
 
-        accENS = ensemble(Lin=trainerL, Conv=trainerC, X_test=X_test, y_test=y_test)
+        accENS = ensemble(Lin=trainerL, Conv=trainerC, X_test=X_test, y_test=y_test, weighted=True, 
+                          LinTrainAcc=LinTrainAcc, ConTrainAcc=ConTrainAcc)
 
 
         ## Print results
+        print('\n-------------------------------------------------------------')
         print('Linear Net accuracy:',accL)
         print('Conv Net accuracy:',accC)
         print('Ensemble Net accuracy:',accENS)

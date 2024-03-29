@@ -51,7 +51,7 @@ def save_image():
             else:
                 other_array[i][j] = 0
     print(other_array)
-    with open("image.pkl", "ab") as f:
+    with open("drawing/image.pkl", "ab") as f:
         pickle.dump(other_array, f)
     window.quit()
 

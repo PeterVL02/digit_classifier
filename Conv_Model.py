@@ -91,7 +91,7 @@ class Trainer:
         self.y_test = y_test
 
     def train(self, epochs=2, show_load=True, plot_loss=False):
-        'Train the model for a number of epochs and return the loss list if plot_loss=True'
+        'Train the model for a number of epochs and return the loss list if plot_loss=True. Returns the accuracy of last Epoch.'
 
         if plot_loss: loss_list = []
         
@@ -115,7 +115,8 @@ class Trainer:
                 
             print(f'Epoch {epoch+1} Accuracy: {np.mean(score)}')
         
-        if plot_loss: return loss_list
+        if plot_loss: return loss_list, np.mean(score)
+        return np.mean(score)
 
     def test(self, X = None, Y = None, show_load=False):
         '''Test the model on the test data and return the accuracy.\n

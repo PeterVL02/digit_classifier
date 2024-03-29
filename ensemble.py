@@ -15,15 +15,15 @@ def train_models():
     trainerC = Trainer(Conv_Net, X_train, y_train, X_test, y_test)
 
     ## Train models and get training loss
-    trainerC.train(epochs=8)
-    trainerL.train(epochs=3)
-    return trainerL, trainerC, X_test, y_test
+    CLast_Epoch_Acc = trainerC.train(epochs=8)
+    Llast_Epoch_Acc = trainerL.train(epochs=3)
+    return trainerL, trainerC, X_test, y_test, CLast_Epoch_Acc, Llast_Epoch_Acc
 
 
-def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False, 
-             weighted = False):
+def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, LinTrainAcc=None, ConTrainAcc=None, 
+             show_stats=False, weighted=False):
     if Lin is None or Conv is None:
-        TL, TC, X_test, y_test = train_models()
+        TL, TC, X_test, y_test, ConTrainAcc, LinTrainAcc = train_models()
     
     else:
         TL, TC = Lin, Conv
@@ -33,6 +33,7 @@ def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False,
 
     preds = []
     score = np.zeros(len(X_test))
+    decision_model = np.zeros(len(X_test)) ## 1 for Conv, 0 for Linear
     for i, xy in enumerate(zip(X_test,y_test)):
         x, y = xy
         predL, confL = TL.test(X=x, show_load=False)
@@ -40,11 +41,10 @@ def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False,
 
         predL, predC = predL[0], predC[0]
 
-        ## TODO Perhaps look at **TRAINING** accuracy to determine if one model should weigh more
-        ## Important that we do not use test accuracy (LinACC and ConAcc), since we do not know that yet
-        if confL < confC: 
+        if confL * (LinTrainAcc**2 if weighted else 1) < confC * (ConTrainAcc**2 if weighted else 1): 
             curr_pred = predC
             preds.append(predC)
+            decision_model[i] = 1
         else:
             curr_pred = predL
             preds.append(predL)
@@ -56,9 +56,10 @@ def ensemble(Lin=None, Conv=None, X_test=None,y_test=None, show_stats=False,
         print('CONV ACCURACY:', ConACC)
         print('ENSEMBLE ACCURACY:', np.mean(score))
         print('Ensemble improved accuracy by:', (np.mean(score) - max(LinACC, ConACC))*100, '%')
+        print(f'Decision Distribution: {np.mean(decision_model)} Conv, {1-np.mean(decision_model)} Linear')
     return np.mean(score)
         
 
 
 if __name__ == '__main__':
-    ensemble(show_stats=True)
+    ensemble(show_stats=True, weighted=True)

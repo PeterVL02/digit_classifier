@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
 
         ## Define number of epochs
-        rttL, rttC = 3, 8
+        rttL, rttC = 7, 6
 
         ## Instantiate trainers for each model
         trainerL = Trainer(Linear_Net, X_train, y_train, X_test, y_test)

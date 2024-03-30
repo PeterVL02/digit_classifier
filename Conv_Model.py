@@ -98,8 +98,8 @@ class Trainer:
         for epoch in range(epochs):
             score = np.zeros(len(self.X_train))
 
-            print(f'\nEpoch: {epoch+1}/{epochs},', f'Model: {self.net.ID}')
             if show_load:
+                print(f'\nEpoch: {epoch+1}/{epochs},', f'Model: {self.net.ID}')
                 iterator = tqdm(enumerate(zip(self.X_train, self.y_train)), ascii=True, total=len(self.X_train))
             else:
                 iterator = enumerate(zip(self.X_train, self.y_train))
@@ -113,7 +113,7 @@ class Trainer:
                 if plot_loss: loss_list.append(loss)
 
                 
-            print(f'Epoch {epoch+1} Accuracy: {np.mean(score)}')
+            if show_load: print(f'Epoch {epoch+1} Accuracy: {np.mean(score)}')
         
         if plot_loss: return loss_list, np.mean(score)
         return np.mean(score)

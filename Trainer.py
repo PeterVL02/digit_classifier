@@ -129,13 +129,3 @@ class Trainer:
         if give_preds:
             return Y, conf
         return np.mean(score)
-    
-def dataprep(network, data=None):
-    'Prepare the data for training and testing the model. If data is None, load the digits dataset and split it.'
-    if data is None:
-        digits = datasets.load_digits()
-        ims, labs = digits.images, digits.target
-        X_train, X_test, y_train, y_test = train_test_split(ims, labs, test_size=0.2, random_state=42)
-    else:
-        X_train, X_test, y_train, y_test = data
-    return X_train, X_test, y_train, y_test

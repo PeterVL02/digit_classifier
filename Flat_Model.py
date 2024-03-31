@@ -8,7 +8,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from Conv_Model import Trainer, dataprep
+
+from Trainer import Trainer
 
 class Linear_Net(nn.Module):
     def __init__(self, lr: float = 0.00085, device: str = None):
@@ -53,13 +54,3 @@ class Linear_Net(nn.Module):
         prob = F.softmax(pred, dim=1)
         conf = prob[0][torch.argmax(pred)]
         return torch.argmax(pred).item(), loss.item(), conf.item()
-    
-if __name__ == '__main__':
-    X_train, X_test, y_train, y_test = dataprep(Linear_Net())
-
-    rtt = 3
-
-    trainer = Trainer(Linear_Net, X_train, y_train, X_test, y_test)
-    trainer.train(epochs=rtt)
-    acc = trainer.test()
-    print(f"Accuracy: {acc}")

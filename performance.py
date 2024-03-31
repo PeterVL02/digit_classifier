@@ -2,10 +2,11 @@ from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from Conv_Model import Conv_Net, Trainer
+from Conv_Model import Conv_Net
+from Trainer import Trainer
 from Flat_Model import Linear_Net
 from ensemble import *
-from main import k_fold_cross_validation
+from resources import *
 
 def visualize_performance(trainer, X_test, y_test):
     # Get predictions

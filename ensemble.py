@@ -1,4 +1,5 @@
-from Conv_Model import Conv_Net, Trainer, dataprep
+from Trainer import Trainer
+from Conv_Model import Conv_Net
 from Flat_Model import Linear_Net
 from sklearn.model_selection import train_test_split
 from sklearn import datasets

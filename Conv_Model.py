@@ -10,7 +10,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import time
 
-from Trainer import Trainer
+# from Trainer import Trainer
 
 class Conv_Net(nn.Module):
     def __init__(self, lr: float = 0.00085, device: str = None):
@@ -49,13 +49,12 @@ class Conv_Net(nn.Module):
         
 
     def train_step(self, X, y) -> tuple:
-        'Train the model on a single sample and return the prediction and loss'
-        X = torch.tensor(X[0], dtype=torch.float).unsqueeze(0)
-        X = X.view(1, 1, 8, 8).to(self.device)  # Reshape to (batch_size, num_channels, height, width)
+        'Train the model on a batch of samples and return the predictions and loss'
+
+        X = X.to(self.device)
         pred = self(X).to(self.device)
-        temp_out = torch.zeros(1, 10)
-        temp_out[0][int(y)] = 1
-        outcome = temp_out.to(self.device)
+
+        outcome = y.to(self.device)
 
         self.optimizer.zero_grad()
 
@@ -63,10 +62,10 @@ class Conv_Net(nn.Module):
         loss.backward()
 
         self.optimizer.step()
-        conf = pred[0][torch.argmax(pred).item()]
-        
 
-        return torch.argmax(pred).item(), loss.item(), conf.item()
+        prob = F.softmax(pred, dim=1)
+        conf = prob[torch.argmax(pred, dim=1)]
+        return torch.argmax(pred, dim=1), loss.item(), conf
 
 
 

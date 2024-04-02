@@ -7,11 +7,12 @@ import numpy as np
 
 
 ## Import models and functions from other files
-from Trainer import Trainer
 from Conv_Model import Conv_Net
 from Flat_Model import Linear_Net
 from ensemble import *
 from resources import *
+from Batch_Trainer import Trainer
+from performance import main_optimized_train
 
 
 
@@ -26,7 +27,10 @@ if __name__ == '__main__':
     gnb_rolling_acc = []
 
     fold = 0
-    for X_train, X_test, y_train, y_test in k_fold_cross_validation(ims, labs, k=5):
+
+    k = 10
+
+    for X_train, X_test, y_train, y_test in k_fold_cross_validation(ims, labs, k=k):
         fold += 1
         print(f'Commencing fold {fold}:\n')
 
@@ -50,10 +54,17 @@ if __name__ == '__main__':
 
         ## Not nearly as fun as making your own model
 
-
         ## Define number of epochs
-        rttL, rttC = 7, 6
+        rttL, rttC = 17, 25
 
+        ## TODO: Find out whether PERFORMANCE.PY TO FIND OPTIMAL EPOCHS AND TRAIN (MAIN_OPTIMIZED_TRAIN) is better
+        ## or if we should just train the models with a fixed number of epochs
+        ## ANSWER: It seems to work best with a fixed number of epochs, but we can still use the performance.py functions
+
+        # reportL, accL, LinTrainAcc, trainerL = main_optimized_train(Linear_Net, X_train, X_test, y_train, y_test)
+        # reportC, accC, ConTrainAcc, trainerC = main_optimized_train(Conv_Net, X_train, X_test, y_train, y_test)
+
+        
         ## Instantiate trainers for each model
         trainerL = Trainer(Linear_Net, X_train, y_train, X_test, y_test)
         trainerC = Trainer(Conv_Net, X_train, y_train, X_test, y_test)
@@ -97,8 +108,12 @@ if __name__ == '__main__':
         svm_rolling_acc.append(SVMacc)
         gnb_rolling_acc.append(GNBacc)
 
-    print('Ensemble Rolling Accuracy:',np.mean(ens_rolling_acc))
+    print('\nEnsemble Rolling Accuracy:',np.mean(ens_rolling_acc))
     print('Linear Rolling Accuracy:',np.mean(lin_rolling_acc))
     print('Conv Rolling Accuracy:',np.mean(conv_rolling_acc))
     print('SVM Rolling Accuracy:',np.mean(svm_rolling_acc))
     print('GNB Rolling Accuracy:',np.mean(gnb_rolling_acc))
+    print('-------------------------------------------------------------')
+    print(f'Ensemble Net improvement over SciKit SVM: {(np.mean(ens_rolling_acc)-np.mean(svm_rolling_acc))*100:.2f}%')
+    if np.mean(ens_rolling_acc) > np.mean(svm_rolling_acc):
+        print(f'We beat the SciKit SVM model in {k} fold cross-validation!')

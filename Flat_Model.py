@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-from Trainer import Trainer
+# from Trainer import Trainer
 
 class Linear_Net(nn.Module):
     def __init__(self, lr: float = 0.00085, device: str = None):
@@ -36,13 +36,12 @@ class Linear_Net(nn.Module):
         
 
     def train_step(self, X, y) -> tuple:
-        'Train the model on a single sample and return the prediction and loss'
+        'Train the model on a batch of samples and return the predictions and loss'
 
-        X = X.flatten()
-        X = torch.tensor(X, dtype=torch.float).to(self.device)
-        pred = self(X).unsqueeze(0).to(self.device)
+        X = X.view(X.size(0), -1).to(self.device)  # Flatten only the innermost two dimensions
+        pred = self(X).to(self.device)
 
-        outcome = torch.tensor([y], dtype=torch.long).to(self.device)
+        outcome = y.to(self.device)
 
         self.optimizer.zero_grad()
 
@@ -52,5 +51,5 @@ class Linear_Net(nn.Module):
         self.optimizer.step()
 
         prob = F.softmax(pred, dim=1)
-        conf = prob[0][torch.argmax(pred)]
-        return torch.argmax(pred).item(), loss.item(), conf.item()
+        conf = prob[torch.argmax(pred, dim=1)]
+        return torch.argmax(pred, dim=1), loss.item(), conf

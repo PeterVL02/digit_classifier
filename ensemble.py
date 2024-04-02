@@ -1,4 +1,4 @@
-from Trainer import Trainer
+from Batch_Trainer import Trainer
 from Conv_Model import Conv_Net
 from Flat_Model import Linear_Net
 from sklearn.model_selection import train_test_split
@@ -16,8 +16,8 @@ def train_models():
     trainerC = Trainer(Conv_Net, X_train, y_train, X_test, y_test)
 
     ## Train models and get training loss
-    CLast_Epoch_Acc = trainerC.train(epochs=8)
-    Llast_Epoch_Acc = trainerL.train(epochs=3)
+    CLast_Epoch_Acc = trainerC.train(epochs=17)
+    Llast_Epoch_Acc = trainerL.train(epochs=17)
     return trainerL, trainerC, X_test, y_test, CLast_Epoch_Acc, Llast_Epoch_Acc
 
 
